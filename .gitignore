@@ -1,0 +1,38 @@
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# IDE / editor
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Mypy / typecheck
+.mypy_cache/
+.ruff_cache/
+
+# Local data (RAG)
+data/
+uploads/
+*.pdf
+*.docx
+*.pptx
+*.xlsx
+
+# Qdrant local (if you ever run it locally)
+qdrant_storage/

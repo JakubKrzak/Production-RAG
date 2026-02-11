@@ -1,0 +1,21 @@
+[project]
+name = "rag-documents"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain>=1.2.10",
+    "langchain-community>=0.4.1",
+    "langchain-core>=1.2.10",
+    "langchain-openai>=1.1.8",
+    "langchain-qdrant>=1.1.0",
+    "llama-index>=0.14.13",
+    "llama-index-core>=0.14.13",
+    "llama-index-readers-file>=0.5.6",
+    "llama-index-vector-stores-qdrant>=0.9.1",
+    "openai>=2.17.0",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.1",
+    "qdrant-client>=1.16.2",
+]
