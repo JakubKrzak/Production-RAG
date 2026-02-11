@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.png" alt="Production RAG Banner" width="1000" />
+  <img src="assets/banner.png" alt="Production RAG Banner" width="1100" />
 </p>
 
 # Production RAG System
