@@ -40,16 +40,16 @@ This is not a one-off exercise. The project is developed iteratively, with a str
 ### 3. Modular Architecture
 
 ## Project Structure
+
 src/
-    rag/
+  rag/
     loaders/
     services/
     storage/
     schemas.py
     main.py
-
-    tests/
-    scripts/
+tests/
+scripts/
 
 - `src/rag` – main application package  
 - `tests` – unit tests  
@@ -70,27 +70,20 @@ This structure enables safe extension and future scalability.
 ## Logical Architecture
 
 ### Ingestion Pipeline
-
-PDF
-→ Chunking
-→ Embedding (OpenAI)
-→ Upsert to Qdrant
+PDF → Chunking → Embedding (OpenAI) → Upsert to Qdrant
 
 ### Retrieval Pipeline
-
-User Query
-→ Embedding
-→ Vector Search (Qdrant)
-→ Context Construction
-→ LLM Response Generation
+User Query → Embedding → Vector Search (Qdrant) → Context Construction → LLM Response Generation
 
 ## Configuration
 
 The project uses environment variables:
 
+```bash
 OPENAI_API_KEY=
 QDRANT_ENDP=
 QDRANT_API_KEY=
+```
 
 Secrets are not stored in the repository.  
 A `.env.example` file contains the required variables.
