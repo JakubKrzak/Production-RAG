@@ -2,6 +2,13 @@
   <img src="assets/banner.png" alt="Production RAG Banner" width="1100" />
 </p>
 
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green)
+![OpenAI](https://img.shields.io/badge/OpenAI-LLM-black)
+![Qdrant](https://img.shields.io/badge/Qdrant-VectorDB-red)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
+
 # Production RAG System
 
 A Retrieval-Augmented Generation (RAG) project built with Python, OpenAI, and Qdrant.
