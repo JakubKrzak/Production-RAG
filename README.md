@@ -2,7 +2,7 @@
   <img src="assets/banner.png" alt="Production RAG Banner" width="1000" />
 </p>
 
-# RAG Documents
+# Production RAG System
 
 A Retrieval-Augmented Generation (RAG) project built with Python, OpenAI, and Qdrant.
 
