@@ -1,7 +1,7 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance, PointStruct
 from qdrant_client.http.exceptions import UnexpectedResponse
-from schemas import DocumentChunk
+from rag.services.schemas import DocumentChunk
 import pydantic
 import os
 from dotenv import load_dotenv
