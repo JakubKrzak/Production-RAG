@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
+from rag.services.schemas import QuestionReq, QuestionRes
+
 from rag.services.llm_service import LLM_server
 from rag.storage.data_base import QdrantStorage
 from rag.services.retrival import Retrival
@@ -30,12 +32,6 @@ app.add_middleware(
 @app.get("/")
 def root():
     return {"messages": "API works"}
-
-class QuestionReq(BaseModel):
-    question: str
-
-class QuestionRes(BaseModel):
-    answer: str
 
 @app.post("/question", response_model=QuestionRes)
 def ask_question(payload: QuestionReq):
