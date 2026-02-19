@@ -1,19 +1,24 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from dotenv import load_dotenv
 
-from rag.services.schemas import QuestionReq, QuestionRes
+import os
+from pathlib import Path
+import shutil
 
+from rag.services.schemas import QuestionReq, QuestionRes
 from rag.services.llm_service import LLM_server
 from rag.storage.data_base import QdrantStorage
 from rag.services.retrival import Retrival
+from rag.services.ingestion import Ingestion
 
 
 load_dotenv()
-db = QdrantStorage("RAG-DOC")
+db = QdrantStorage("policy_home")
 ai = LLM_server()
-pipeline = Retrival(db, ai)
+
+pipeline_ingestion = Ingestion(db, ai)
+pipeline_retrival = Retrival(db, ai)
 
 app = FastAPI()
 
@@ -35,5 +40,25 @@ def root():
 
 @app.post("/question", response_model=QuestionRes)
 def ask_question(payload: QuestionReq):
-    answer = pipeline.retrival(payload.question)
+    """Function receives user question, 
+        pass it to retrival pipeline and return answer"""
+    
+    answer = pipeline_retrival.retrival(payload.question)
     return {"answer": answer}
+
+@app.post("/upload")
+async def upload_document(file: UploadFile = File(...)):
+    if not file.filename.endswith(('.pdf')):
+        raise HTTPException(status_code=400, detail="document format is not pdf")
+    
+    upload_folder = "data"
+    os.makedirs(upload_folder, exist_ok=True)
+
+    file_path = os.path.join(upload_folder, file.filename)
+
+    with open(file_path, "wb+") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    ingestion = pipeline_ingestion.ingestion_pdf(file_path)
+    return {"message": "Ingestion finish"}
+
