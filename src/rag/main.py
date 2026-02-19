@@ -39,11 +39,11 @@ def root():
     return {"messages": "API works"}
 
 @app.post("/question", response_model=QuestionRes)
-def ask_question(payload: QuestionReq):
+async def ask_question(payload: QuestionReq):
     """Function receives user question, 
         pass it to retrival pipeline and return answer"""
     
-    answer = pipeline_retrival.retrival(payload.question)
+    answer = await pipeline_retrival.retrival(payload.question)
     return {"answer": answer}
 
 @app.post("/upload")
