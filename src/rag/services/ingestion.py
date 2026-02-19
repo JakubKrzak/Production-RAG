@@ -1,6 +1,6 @@
-from data_loader import load_chunk_pdf
-from llm_service import LLM_server
-from data_base import QdrantStorage
+from loaders.data_loader import load_chunk_pdf
+from services.llm_service import LLM_server
+from storage.data_base import QdrantStorage
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,5 +14,5 @@ class Ingestion():
         chunks_pdf = load_chunk_pdf(path=pdf_path)
         chunks_embedding = self.llm.embeddings_chunks(chunks_pdf)
         if self.db.upsert_chunks(chunks=chunks_pdf, vectors=chunks_embedding):
-            return f"Pdf dodany do bazy dziala wszytsko "
+            return f"PDF {pdf_path} has been ingested"
 
