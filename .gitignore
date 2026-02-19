@@ -36,3 +36,6 @@ uploads/
 
 # Qdrant local (if you ever run it locally)
 qdrant_storage/
+
+__pycache__/
+*.pyc
