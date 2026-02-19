@@ -1,5 +1,5 @@
 from openai import OpenAI, OpenAIError
-from schemas import DocumentChunk
+from rag.services.schemas import DocumentChunk
 from dotenv import load_dotenv
 
 load_dotenv()
