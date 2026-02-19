@@ -37,13 +37,20 @@ class QdrantStorage():
             if not self.client.collection_exists(collection_name=self.collection_name):
                 self.client.create_collection(
                 collection_name=self.collection_name,
-                vectors_config=VectorParams(size=self.dim ,distance=Distance.COSINE)
+                vectors_config=VectorParams(size=self.dsim ,distance=Distance.COSINE)
             )
             print(f"Collection create: {self.collection_name}")
             
 
         except Exception as e:
             raise ValueError(f"DB {self.collection_name} exists")
+        
+    def check_collection_exists(self):
+        if not self.client.collection_exists(collection_name=self.collection_name):
+            return False
+        else:
+            True
+
     
     def delete_collection(self, collection_name):
         """

@@ -1,4 +1,4 @@
-from openai import OpenAI, OpenAIError
+from openai import AsyncOpenAI, OpenAIError
 from rag.services.schemas import DocumentChunk
 from dotenv import load_dotenv
 
@@ -6,7 +6,7 @@ load_dotenv()
 
 class LLM_server():
     def __init__(self, llm_model="gpt-4o-mini", embedding_model="text-embedding-3-small",  dim: int = 1536):
-        self.client = OpenAI()
+        self.client = AsyncOpenAI()
         self.llm_model=llm_model
         self.embedding_model=embedding_model
         self.dim = dim
@@ -37,7 +37,7 @@ class LLM_server():
         
         return vectors
     
-    def query_embedding(self, user_question: str) -> list[float]:
+    async def query_embedding(self, user_question: str) -> list[float]:
         """
         
         Function change user question to a vectors list[float]
@@ -45,7 +45,7 @@ class LLM_server():
 
         """
         try:
-            response = self.client.embeddings.create(
+            response = await self.client.embeddings.create(
             model=self.embedding_model,
             input=[user_question]
             )
@@ -80,14 +80,14 @@ class LLM_server():
         except Exception as e:
             raise RuntimeError(f"Error {e}") from e
         
-    def llm_response(self, user_question: str, context: str) -> str:
+    async def llm_response(self, user_question: str, context: str) -> str:
         system_prompt = (
             "You are a professional assistant specializing in document analysis. "
             "Answer the user's question using only the provided CONTEXT. "
         )
 
         try:
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model=self.llm_model,
                 messages=[
                     {

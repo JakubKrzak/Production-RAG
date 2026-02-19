@@ -7,9 +7,9 @@ class Retrival():
         self.db = data_base
         self.llm = llm
     
-    def retrival(self, user_question: str) -> str:
-        user_question_embedding = self.llm.query_embedding(user_question=user_question)
-        hits = self.db.search_similarity(vectors = user_question_embedding, top_k=5)
+    async def retrival(self, user_question: str) -> str:
+        user_question_embedding = await self.llm.query_embedding(user_question=user_question)
+        hits = await self.db.search_similarity(vectors = user_question_embedding, top_k=5)
         context = self.llm.create_context(hits=hits)
-        answer = self.llm.llm_response(user_question=user_question, context=context)
+        answer = await self.llm.llm_response(user_question=user_question, context=context)
         return answer
