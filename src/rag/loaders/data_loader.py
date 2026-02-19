@@ -1,6 +1,6 @@
 from llama_index.readers.file import PDFReader
 from llama_index.core.node_parser import SentenceSplitter
-from schemas import DocumentChunk
+from rag.services.schemas import DocumentChunk
 from pathlib import Path
 from dotenv import load_dotenv
 
