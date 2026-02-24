@@ -1,4 +1,4 @@
-from qdrant_client import QdrantClient
+from qdrant_client import AsyncQdrantClient
 from qdrant_client.models import VectorParams, Distance, PointStruct
 from qdrant_client.http.exceptions import UnexpectedResponse
 from rag.services.schemas import DocumentChunk
@@ -16,7 +16,7 @@ class QdrantStorage():
         if not url or not api_key:
             raise ValueError("QDRANT_ENDP and QDRANT_API_KEY must be set in .env file")
         
-        self.client = QdrantClient(url=url, api_key=api_key)
+        self.client = AsyncQdrantClient(url=url, api_key=api_key)
         self.collection_name = collection_name
         self.dim = dim
     
@@ -37,7 +37,7 @@ class QdrantStorage():
             if not self.client.collection_exists(collection_name=self.collection_name):
                 self.client.create_collection(
                 collection_name=self.collection_name,
-                vectors_config=VectorParams(size=self.dsim ,distance=Distance.COSINE)
+                vectors_config=VectorParams(size=self.dim ,distance=Distance.COSINE)
             )
             print(f"Collection create: {self.collection_name}")
             
@@ -67,6 +67,27 @@ class QdrantStorage():
         
         except UnexpectedResponse as e:
             raise ValueError(f"error {e}")
+    
+    def create_points(self, chunks: list[DocumentChunk], vectors: list[list[float]]) -> list[PointStruct]:
+        if not chunks or not vectors:
+            return []
+        
+        if len(chunks) != len(vectors):
+            raise ValueError(f"chunks {len(chunks)} | vectors {len(vectors)} not match")
+        
+        points = []
+        for chunk, vector in zip(chunks, vectors):
+            points.append(
+                PointStruct(
+                    id=chunk.chunk_id,
+                    vector=vector,
+                    payload=chunk.model_dump()
+                )
+            )
+            
+        return points
+    
+            
 
     def upsert_chunks(self, chunks: list[DocumentChunk], vectors: list[list[float]]):
         if not chunks or not vectors:
@@ -92,12 +113,12 @@ class QdrantStorage():
         except Exception as e:
             raise ValueError(f"Error {e}")
     
-    def search_similarity(self, vectors: list[float], top_k: int =5):
+    async def search_similarity(self, vectors: list[float], top_k: int =5):
         if not vectors:
             raise ValueError(f"there are no vectors, current vecs: {len(vectors)}")
         
         try:
-            response = self.client.query_points(
+            response = await self.client.query_points(
                 collection_name=self.collection_name,
                 query=vectors,
                 with_payload=True,
