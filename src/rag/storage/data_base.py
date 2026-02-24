@@ -45,12 +45,8 @@ class QdrantStorage():
         except Exception as e:
             raise ValueError(f"DB {self.collection_name} exists")
         
-    def check_collection_exists(self):
-        if not self.client.collection_exists(collection_name=self.collection_name):
-            return False
-        else:
-            True
-
+    async def check_collection_exists(self) -> bool:
+        return await self.client.collection_exists(collection_name=self.collection_name)
     
     def delete_collection(self, collection_name):
         """
@@ -87,32 +83,15 @@ class QdrantStorage():
             
         return points
     
-            
-
-    def upsert_chunks(self, chunks: list[DocumentChunk], vectors: list[list[float]]):
-        if not chunks or not vectors:
-            return []
-        try:
-            points = []
-
-            for chunk, vector in zip(chunks, vectors):
-                points.append(
-                    PointStruct(
-                        id=chunk.chunk_id,
-                        vector=vector,
-                        payload=chunk.model_dump()
-                    )
-                )
-
-            self.client.upsert(
-                collection_name = self.collection_name, 
-                points = points
-            )
-            print(f"Added {len(points)} points to DB")
-
-        except Exception as e:
-            raise ValueError(f"Error {e}")
-    
+    async def upsert_points(self, points: list[PointStruct]):
+        if not points:
+            return
+        
+        await self.client.upsert(
+            collection_name=self.collection_name,
+            points=points
+        )
+ 
     async def search_similarity(self, vectors: list[float], top_k: int =5):
         if not vectors:
             raise ValueError(f"there are no vectors, current vecs: {len(vectors)}")
