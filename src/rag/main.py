@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
@@ -53,12 +53,12 @@ async def upload_document(file: UploadFile = File(...)):
     
     upload_folder = "data"
     os.makedirs(upload_folder, exist_ok=True)
-
     file_path = os.path.join(upload_folder, file.filename)
 
     with open(file_path, "wb+") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
-    ingestion = pipeline_ingestion.ingestion_pdf(file_path)
+    BackgroundTasks.add_task(pipeline_ingestion.ingestion_pdf, file_path)
+
     return {"message": "Ingestion finish"}
 
