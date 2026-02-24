@@ -32,18 +32,14 @@ class QdrantStorage():
         except Exception as e:
             raise SystemError("Connection Error")
     
-    def create_collection(self):
-        try:
-            if not self.client.collection_exists(collection_name=self.collection_name):
-                self.client.create_collection(
-                collection_name=self.collection_name,
-                vectors_config=VectorParams(size=self.dim ,distance=Distance.COSINE)
-            )
-            print(f"Collection create: {self.collection_name}")
-            
-
-        except Exception as e:
-            raise ValueError(f"DB {self.collection_name} exists")
+    async def create_collection(self) -> None:
+        exists = await self.client.collection_exists(collection_name=self.collection_name)
+        if exists:
+            return
+        
+        await self.client.create_collection(
+            collection_name=self.collection_name,
+            vectors_config=VectorParams(size=self.dim, distance=Distance.COSINE))
         
     async def check_collection_exists(self) -> bool:
         return await self.client.collection_exists(collection_name=self.collection_name)
