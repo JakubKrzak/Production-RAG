@@ -1,10 +1,10 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 
 import os
 from pathlib import Path
 import shutil
+import json
 
 from rag.services.schemas import QuestionReq, QuestionRes
 from rag.services.llm_service import LLM_server
@@ -12,9 +12,11 @@ from rag.storage.data_base import QdrantStorage
 from rag.services.retrival import Retrival
 from rag.services.ingestion import Ingestion
 
+from dotenv import load_dotenv
+
 
 load_dotenv()
-db = QdrantStorage("policy_home")
+db = QdrantStorage("regulamin")
 ai = LLM_server()
 
 pipeline_ingestion = Ingestion(db, ai)
@@ -46,19 +48,23 @@ async def ask_question(payload: QuestionReq):
     answer = await pipeline_retrival.retrival(payload.question)
     return {"answer": answer}
 
-@app.post("/upload")
-async def upload_document(file: UploadFile = File(...)):
-    if not file.filename.endswith(('.pdf')):
-        raise HTTPException(status_code=400, detail="document format is not pdf")
+@app.post("/file/upload")
+async def upload_file(file: UploadFile = File(...)):
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only .pdf files are allowed")
     
     upload_folder = "data"
     os.makedirs(upload_folder, exist_ok=True)
+
     file_path = os.path.join(upload_folder, file.filename)
 
-    with open(file_path, "wb+") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    try:
+        with open(file_path, mode="wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save file: {e}")
     
-    BackgroundTasks.add_task(pipeline_ingestion.ingestion_pdf, file_path)
-
-    return {"message": "Ingestion finish"}
+    return {"messages": "File was save", "filename": file.filename, "file path": file_path}
+    
+    
 
