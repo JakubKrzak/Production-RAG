@@ -242,6 +242,7 @@
         .file {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 10px;
             padding: 10px 12px;
             border-radius: 14px;
@@ -413,6 +414,7 @@
 
                     <div class="file">
                         <input id="fileInput" type="file" />
+                        <button class="btn" id="uploadBtn" style="white-space: nowrap;">Upload file</button>
                     </div>
                     <div class="fileName" id="fileName">No file selected.</div>
                 </div>
@@ -455,6 +457,7 @@
         const chatEl = el("chat");
 
         const fileInput = el("fileInput");
+        const uploadBtn = el("uploadBtn");
         const fileNameEl = el("fileName");
 
         const toastEl = el("toast");
@@ -462,19 +465,13 @@
         // State
         let reqCount = 0;
         let lastAnswer = "";
+        let selectedFile = null;
 
         // Persist API URL
         apiUrlEl.value = localStorage.getItem("rag_api_url_v2") || DEFAULT_API_URL;
         apiUrlEl.addEventListener("change", () => {
             localStorage.setItem("rag_api_url_v2", apiUrlEl.value.trim());
             toast("API URL saved.");
-        });
-
-        // File UI
-        fileInput.addEventListener("change", () => {
-            const f = fileInput.files && fileInput.files[0];
-            fileNameEl.textContent = f ? `Selected: ${f.name}` : "No file selected.";
-            // Upload logic will be added later (separate endpoint /upload).
         });
 
         function toast(msg) {
@@ -490,6 +487,7 @@
             pingBtn.disabled = v;
             copyBtn.disabled = v;
             clearBtn.disabled = v;
+            uploadBtn.disabled = v;
         }
 
         function setDot(state) {
@@ -617,6 +615,60 @@
             qEl.focus();
         }
 
+        // File Selection Logic
+        fileInput.addEventListener("change", () => {
+            selectedFile = fileInput.files && fileInput.files[0];
+            if (selectedFile) {
+                fileNameEl.textContent = `Selected: ${selectedFile.name} (Ready to upload)`;
+            } else {
+                fileNameEl.textContent = "No file selected.";
+            }
+        });
+
+        // File Upload Logic
+        uploadBtn.addEventListener("click", async () => {
+            if (!selectedFile) {
+                toast("Please select a file first!");
+                return;
+            }
+
+            fileNameEl.textContent = `Uploading: ${selectedFile.name}...`;
+
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+
+            const baseUrl = apiUrlEl.value.trim().replace("/question", "");
+            const uploadUrl = baseUrl + "/upload";
+
+            setLoading(true);
+
+            try {
+                const res = await fetch(uploadUrl, {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.detail || "Failed to upload file");
+                }
+
+                toast("File uploaded successfully!");
+                fileNameEl.textContent = `Uploaded: ${selectedFile.name}`;
+                addMsg("System", `File ${selectedFile.name} landed safely on the server!`);
+
+            } catch (err) {
+                toast("Upload error.");
+                fileNameEl.textContent = `Error: ${selectedFile.name}`;
+                addMsg("System", `Upload error: ${err.message}`);
+            } finally {
+                setLoading(false);
+                fileInput.value = "";
+                selectedFile = null;
+            }
+        });
+
         // Events
         sendBtn.addEventListener("click", send);
         pingBtn.addEventListener("click", ping);
@@ -632,7 +684,7 @@
         });
 
         // init
-        addMsg("Assistant", "Ready.");
+        addMsg("System", "Ready.");
         qEl.focus();
     </script>
 </body>
