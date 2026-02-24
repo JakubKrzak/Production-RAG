@@ -20,18 +20,20 @@ class QdrantStorage():
         self.collection_name = collection_name
         self.dim = dim
     
-    def test_connection_db(self):
+    async def test_connection_db(self)  -> bool:
         """
         
         Function testing connection with data base
         
         """
         try:
-            if self.client.get_collections():
-                print("Connection works with db")
-        except Exception as e:
-            raise SystemError("Connection Error")
-    
+            await self.client.info()
+            return True
+        except (UnexpectedResponse, OSError, TimeoutError):
+            return False
+        except Exception:
+            return False
+   
     async def create_collection(self) -> None:
         exists = await self.client.collection_exists(collection_name=self.collection_name)
         if exists:
