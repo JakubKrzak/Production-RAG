@@ -46,22 +46,12 @@ class QdrantStorage():
     async def check_collection_exists(self) -> bool:
         return await self.client.collection_exists(collection_name=self.collection_name)
     
-    def delete_collection(self, collection_name):
-        """
+    async def delete_collection(self) -> None:
+        if not await self.check_collection_exists():
+            return 
+        await self.client.delete_collection(collection_name=self.collection_name)
         
-        Function to delete collections
-
-        """
-        try:
-            if not self.client.collection_exists(collection_name=collection_name):
-                print(f"Collection {collection_name} not found")
-            else:
-                self.client.delete_collection(collection_name=collection_name)
-                print(f"Collection {collection_name} has been delated")
         
-        except UnexpectedResponse as e:
-            raise ValueError(f"error {e}")
-    
     def create_points(self, chunks: list[DocumentChunk], vectors: list[list[float]]) -> list[PointStruct]:
         if not chunks or not vectors:
             return []
