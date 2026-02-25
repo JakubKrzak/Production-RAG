@@ -1,6 +1,5 @@
 from rag.loaders.data_loader import load_chunk_pdf
 from dotenv import load_dotenv
-from qdrant_client import QdrantClient
 
 load_dotenv()
 
@@ -9,15 +8,14 @@ class Ingestion():
         self.db = data_base
         self.llm = llm
     
-    def ingestion_pdf(self, pdf_path):
-        collection_exists = self.db.check_collection_exists()
+    async def ingestion_pdf(self, pdf_path):
+        collection_exists = await self.db.check_collection_exists()
+
         if not collection_exists:
-            self.db.create_collection()
+            await self.db.create_collection()
         
         chunks_pdf = load_chunk_pdf(path=pdf_path)
-        
-        chunks_embedding = self.llm.embeddings_chunks(chunks_pdf)
-        
-        if self.db.upsert_chunks(chunks=chunks_pdf, vectors=chunks_embedding):
-            return f"PDF {pdf_path} has been ingested"
+        vectors_chunks = await self.llm.embeddings_chunks(chunks_pdf)
 
+        points = self.db.create_points(chunks=chunks_pdf, vectors=vectors_chunks)
+        return await self.db.upsert_points(points=points)
