@@ -51,7 +51,7 @@ class QdrantStorage():
             return 
         await self.client.delete_collection(collection_name=self.collection_name)
         
-        
+
     def create_points(self, chunks: list[DocumentChunk], vectors: list[list[float]]) -> list[PointStruct]:
         if not chunks or not vectors:
             return []
@@ -83,19 +83,19 @@ class QdrantStorage():
     async def search_similarity(self, vectors: list[float], top_k: int =5):
         if not vectors:
             raise ValueError(f"there are no vectors, current vecs: {len(vectors)}")
+        if len(vectors) != self.dim:
+            raise ValueError(f"Dim not match")
         
-        try:
-            response = await self.client.query_points(
-                collection_name=self.collection_name,
-                query=vectors,
-                with_payload=True,
-                limit=top_k
-            )
-            points = response.points
-            return points
         
-        except Exception as e:
-            raise ValueError(f"Error {e}")
+        response = await self.client.query_points(
+            collection_name=self.collection_name,
+            query=vectors,
+            with_payload=True,
+            limit=top_k
+        )
+        points = response.points
+        return points
+
 
 
                 
