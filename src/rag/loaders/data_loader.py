@@ -25,23 +25,21 @@ def load_chunk_pdf(path: str) -> list[DocumentChunk]:
     if not p.is_file():
         raise IsADirectoryError(f"Path is not a file")
     
-    try:
-        docs = reader.load_data(file=path)
-        nodes= splitter.get_nodes_from_documents(documents=docs)
+   
+    docs = reader.load_data(file=path)
+    nodes= splitter.get_nodes_from_documents(documents=docs)
     
-        chunks = []
-        for node in nodes:
-            chunk = DocumentChunk(
-                chunk_id=node.id_,
-                text=node.text,
-                metadata=node.metadata
-            )
-            chunks.append(chunk)
+    chunks = []
+    for node in nodes:
+        chunk = DocumentChunk(
+            chunk_id=node.id_,
+            text=node.text,
+            metadata=node.metadata
+        )
+        chunks.append(chunk)
 
-        return chunks
-    
-    except Exception as e:
-        raise ValueError(f"Error {e}")
+    return chunks
+
     
 
         
