@@ -26,12 +26,8 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5500", "http://localhost:5500",
-        "http://127.0.0.1:5501", "http://localhost:5501",
-        "http://127.0.0.1:5502", "http://localhost:5502",
-    ],
     allow_credentials=False,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -48,7 +44,7 @@ async def ask_question(payload: QuestionReq):
     answer = await pipeline_retrival.retrival(payload.question)
     return {"answer": answer}
 
-@app.post("/file/upload")
+@app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only .pdf files are allowed")
@@ -64,6 +60,9 @@ async def upload_file(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save file: {e}")
     
+    #Pipeline ingestion
+    await pipeline_ingestion.ingestion_pdf(pdf_path=file_path)
+
     return {"messages": "File was save", "filename": file.filename, "file path": file_path}
     
     
