@@ -1,4 +1,4 @@
-from openai import AsyncOpenAI, OpenAIError
+from openai import AsyncOpenAI
 from rag.services.schemas import DocumentChunk
 from dotenv import load_dotenv
 
