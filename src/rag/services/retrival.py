@@ -8,6 +8,7 @@ class Retrival():
         self.llm = llm
     
     async def retrival(self, user_question: str) -> str:
+
         user_question_embedding = await self.llm.query_embedding(user_question=user_question)
         hits = await self.db.search_similarity(vectors = user_question_embedding, top_k=5)
         context = self.llm.create_context(hits=hits)
